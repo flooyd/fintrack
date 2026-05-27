@@ -82,7 +82,7 @@
 			<div class="ft-search">
 				<Search size={14} />
 				<input placeholder="Search transactions…" aria-label="Search transactions" />
-				<kbd class="ft-search-kbd">K (coming soon)</kbd>
+				<kbd class="ft-search-kbd">K</kbd>
 			</div>
 		</div>
 

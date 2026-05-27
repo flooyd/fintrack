@@ -8,9 +8,9 @@
 
 <header class="ft-nav">
 	<div class="ft-nav-inner">
-		<Logo href="/app" />
+		<Logo href="/?home" />
 		<nav class="ft-nav-right">
-			<a class="ft-nav-link" href="/">About</a>
+			<a class="ft-nav-link" href="/?home">About</a>
 			<span class="ft-user">
 				<span class="ft-user-avatar" title={name}>{initials}</span>
 				<span class="ft-user-name">{name}</span>

@@ -8,6 +8,9 @@
 	import ArrowUpRight from 'lucide-svelte/icons/arrow-up-right';
 	import Plus from 'lucide-svelte/icons/plus';
 	import Minus from 'lucide-svelte/icons/minus';
+	import type { PageProps } from './$types';
+
+	let { data }: PageProps = $props();
 
 	// Illustrative net-worth curve for the hero/landing previews.
 	const previewHistory = [
@@ -66,7 +69,7 @@
 </svelte:head>
 
 <div class="mk-root">
-	<MarketingNav />
+	<MarketingNav loggedIn={data.loggedIn} />
 
 	<!-- Hero -->
 	<section class="mk-hero">
@@ -85,8 +88,13 @@
 					keystroke — see your net worth climb in real time.
 				</p>
 				<div class="mk-cta-row">
-					<a class="ft-btn ft-btn-primary ft-btn-lg" href="/login?mode=signup">Get started — free</a
-					>
+					{#if data.loggedIn}
+						<a class="ft-btn ft-btn-primary ft-btn-lg" href="/app">Go to dashboard</a>
+					{:else}
+						<a class="ft-btn ft-btn-primary ft-btn-lg" href="/login?mode=signup"
+							>Get started — free</a
+						>
+					{/if}
 				</div>
 				<div class="mk-meta">
 					<span>No credit card</span>
@@ -257,10 +265,14 @@
 		<div class="mk-foot-inner">
 			<Logo interactive={false} />
 			<div class="mk-foot-links">
-				<a href="/#features">Features</a>
-				<a href="/#pricing">Pricing</a>
-				<a href="/login">Log in</a>
-				<a href="/login?mode=signup">Sign up</a>
+				<a href="#features">Features</a>
+				<a href="#pricing">Pricing</a>
+				{#if data.loggedIn}
+					<a href="/app">Dashboard</a>
+				{:else}
+					<a href="/login">Log in</a>
+					<a href="/login?mode=signup">Sign up</a>
+				{/if}
 			</div>
 			<div class="mk-foot-meta">© 2026 finTrack</div>
 		</div>

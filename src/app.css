@@ -134,6 +134,7 @@ a {
 .ft-brand-word {
 	font-size: 17px;
 	letter-spacing: -0.015em;
+	white-space: nowrap;
 }
 
 .ft-nav-right {
@@ -157,6 +158,8 @@ a {
 	gap: 7px;
 	height: 34px;
 	padding: 0 14px;
+	white-space: nowrap;
+	flex-shrink: 0;
 	border: 1px solid var(--border-2);
 	border-radius: 8px;
 	background: var(--surface);
@@ -200,6 +203,7 @@ a {
 	font-size: 13.5px;
 	font-weight: 500;
 	color: var(--ink);
+	white-space: nowrap;
 }
 .ft-signout {
 	display: inline-flex;
@@ -207,6 +211,8 @@ a {
 	gap: 6px;
 	height: 34px;
 	padding: 0 12px;
+	white-space: nowrap;
+	flex-shrink: 0;
 	border: 1px solid var(--border-2);
 	border-radius: 8px;
 	background: var(--surface);
@@ -1986,6 +1992,9 @@ kbd.ft-kbd {
 	.ft-nav-link {
 		display: none;
 	}
+	.ft-nav-inner {
+		padding: 14px 20px;
+	}
 	.mk-hero {
 		padding: 40px 24px 24px;
 	}
@@ -2021,6 +2030,15 @@ kbd.ft-kbd {
 	}
 	.ft-range-toggle {
 		flex-wrap: wrap;
+	}
+
+	/* Tighten the top nav and drop the user's name (the avatar still IDs them)
+	   so the brand, avatar and Sign out never crowd or wrap. */
+	.ft-nav-inner {
+		padding: 12px 16px;
+	}
+	.ft-user-name {
+		display: none;
 	}
 
 	/* Give the log/edit drawers more room and start them nearer the top. */
