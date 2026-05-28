@@ -6,10 +6,13 @@
 	import RecentTransactions from '$lib/components/RecentTransactions.svelte';
 	import CategoriesCard from '$lib/components/CategoriesCard.svelte';
 	import LogDrawer from '$lib/components/LogDrawer.svelte';
+	import EditEntryDrawer from '$lib/components/EditEntryDrawer.svelte';
 	import EditNetWorthDrawer from '$lib/components/EditNetWorthDrawer.svelte';
+	import ImportButton from '$lib/components/ImportButton.svelte';
 	import Toast from '$lib/components/Toast.svelte';
 	import Search from 'lucide-svelte/icons/search';
 	import { formatDollars, type Kind } from '$lib/finance';
+	import type { LedgerEntry } from '$lib/server/dashboard';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
@@ -19,6 +22,7 @@
 		initialDrawer === 'income' || initialDrawer === 'expense' ? initialDrawer : null
 	);
 	let editing = $state(false);
+	let editingEntry = $state<LedgerEntry | null>(null);
 	let toast = $state<{ kind: Kind | 'info'; message: string } | null>(null);
 	let toastTimer: ReturnType<typeof setTimeout>;
 
@@ -45,10 +49,41 @@
 		showToast('info', `Net worth updated to $${formatDollars(amount)}`);
 	}
 
+	function onEntryEdit(entry: LedgerEntry) {
+		editingEntry = entry;
+	}
+
+	function onEntrySaved(entry: { kind: Kind; amount: number; tag: string }) {
+		editingEntry = null;
+		showToast('info', `Updated · $${formatDollars(entry.amount)} · ${entry.tag}`);
+	}
+
+	function onEntryDeleted() {
+		editingEntry = null;
+		showToast('info', 'Entry deleted');
+	}
+
+	function onImport(result: {
+		imported: number;
+		duplicates?: number;
+		scanned?: number;
+		message?: string;
+	}) {
+		if (result.message && result.imported === 0) {
+			showToast('info', result.message);
+			return;
+		}
+		const n = result.imported;
+		const dupes = result.duplicates ?? 0;
+		const head = n === 1 ? 'Imported 1 transaction' : `Imported ${n} transactions`;
+		const tail = dupes > 0 ? ` (${dupes} already imported, skipped)` : ' from today';
+		showToast('info', `${head}${tail}`);
+	}
+
 	// I / E open the matching drawer when nothing else is focused and no drawer
 	// is already open (mirrors the prototype's global shortcut).
 	function onkeydown(e: KeyboardEvent) {
-		if (drawer || editing) return;
+		if (drawer || editing || editingEntry) return;
 		if (e.metaKey || e.ctrlKey || e.altKey) return;
 		const tag = (e.target as HTMLElement)?.tagName;
 		if (tag === 'INPUT' || tag === 'TEXTAREA') return;
@@ -77,7 +112,10 @@
 		<div class="ft-greeting">
 			<div>
 				<h1 class="ft-h1">{data.greeting}, {data.user.name}</h1>
-				<p class="ft-sub">{data.dateStr}</p>
+				<div class="ft-sub-row">
+					<p class="ft-sub">{data.dateStr}</p>
+					<ImportButton onimport={onImport} />
+				</div>
 			</div>
 			<div class="ft-search">
 				<Search size={14} />
@@ -105,7 +143,7 @@
 		/>
 
 		<div class="ft-bottom-grid">
-			<RecentTransactions items={d.recent} />
+			<RecentTransactions items={d.recent} onedit={onEntryEdit} onimport={onImport} />
 			<CategoriesCard categories={d.categories} total={d.spendingTotal} />
 		</div>
 	</main>
@@ -119,6 +157,21 @@
 			current={d.netWorth.current}
 			onclose={() => (editing = false)}
 			onsaved={onNetWorthSaved}
+		/>
+	{/if}
+
+	{#if editingEntry}
+		<EditEntryDrawer
+			entry={{
+				id: editingEntry.id,
+				kind: editingEntry.kind,
+				amount: editingEntry.amount,
+				tag: editingEntry.label,
+				note: editingEntry.sub
+			}}
+			onclose={() => (editingEntry = null)}
+			onsaved={onEntrySaved}
+			ondeleted={onEntryDeleted}
 		/>
 	{/if}
 

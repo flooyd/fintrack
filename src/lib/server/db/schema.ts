@@ -26,6 +26,12 @@ export const transaction = pgTable(
 		note: text('note'),
 		/** When the transaction happened — drives the ledger date + net-worth history. */
 		occurredAt: timestamp('occurred_at').notNull().defaultNow(),
+		/**
+		 * Provenance: `null` = manual entry, `'cashapp'` = Cash App CSV import.
+		 * Used to dedupe re-imports against prior imports (by occurredAt) without
+		 * conflating them with same-time manual entries.
+		 */
+		origin: text('origin'),
 		createdAt: timestamp('created_at').notNull().defaultNow()
 	},
 	(table) => [index('transaction_user_occurred_idx').on(table.userId, table.occurredAt)]

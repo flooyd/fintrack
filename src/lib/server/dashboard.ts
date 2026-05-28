@@ -118,10 +118,12 @@ export async function getDashboardData(userId: string, now = new Date()): Promis
 		}
 	}
 
-	// Recent activity — newest first.
+	// Recent activity — newest first. We show enough rows that a same-day CSV
+	// import plus today's manual entries all fit on screen, so duplicates are
+	// reachable for deletion.
 	const recent: LedgerEntry[] = [...rows]
 		.reverse()
-		.slice(0, 8)
+		.slice(0, 20)
 		.map((r) => ({
 			id: r.id,
 			kind: r.kind,

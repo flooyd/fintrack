@@ -266,6 +266,12 @@ a {
 	color: var(--ink-mute);
 	font-size: 14px;
 }
+.ft-sub-row {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	flex-wrap: wrap;
+}
 
 .ft-search {
 	display: inline-flex;
@@ -658,18 +664,35 @@ kbd.ft-kbd {
 	list-style: none;
 }
 .ft-tx {
-	display: grid;
-	grid-template-columns: 32px 1fr auto auto;
-	align-items: center;
-	gap: 14px;
-	padding: 12px 20px;
 	border-top: 1px solid var(--border);
 }
 .ft-tx:first-child {
 	border-top: 0;
 }
-.ft-tx:hover {
+/* Each row is a button so it can be tapped to edit. The button reset keeps it
+   visually identical to the old <li> while exposing keyboard focus + click. */
+.ft-tx-row {
+	display: grid;
+	grid-template-columns: 32px minmax(0, 1fr) auto;
+	align-items: center;
+	gap: 14px;
+	width: 100%;
+	padding: 12px 20px;
+	border: 0;
+	background: transparent;
+	color: inherit;
+	font: inherit;
+	text-align: left;
+	cursor: pointer;
+	transition: background 120ms;
+}
+.ft-tx-row:hover,
+.ft-tx-row:focus-visible {
 	background: var(--surface-2);
+}
+.ft-tx-row:focus-visible {
+	outline: 2px solid var(--brand);
+	outline-offset: -2px;
 }
 
 .ft-tx-icon {
@@ -679,6 +702,7 @@ kbd.ft-kbd {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
+	flex-shrink: 0;
 }
 .ft-tx-icon-income {
 	background: var(--pos-soft);
@@ -697,35 +721,86 @@ kbd.ft-kbd {
 	display: flex;
 	flex-direction: column;
 	min-width: 0;
+	gap: 2px;
 }
 .ft-tx-label {
 	font-size: 13.5px;
 	font-weight: 500;
 	color: var(--ink);
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }
-.ft-tx-sub {
-	font-size: 12px;
-	color: var(--ink-mute);
-}
-
-.ft-tx-when {
+/* Combined meta line: relative date + optional note, separated by a middle dot.
+   Replaces the old standalone "when" column so narrow viewports don't crowd. */
+.ft-tx-meta {
+	display: flex;
+	align-items: baseline;
+	gap: 6px;
+	min-width: 0;
 	font-size: 12px;
 	color: var(--ink-mute);
 	font-variant-numeric: tabular-nums;
+}
+.ft-tx-when {
+	flex-shrink: 0;
+}
+.ft-tx-sep {
+	color: var(--ink-faint);
+	flex-shrink: 0;
+}
+.ft-tx-sub {
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }
 .ft-tx-amt {
 	font-size: 14px;
 	font-weight: 500;
 	font-variant-numeric: tabular-nums;
 	letter-spacing: -0.005em;
-	min-width: 100px;
 	text-align: right;
+	flex-shrink: 0;
 }
 .ft-tx-amt.pos {
 	color: var(--pos);
 }
 .ft-tx-amt.neg {
 	color: var(--ink);
+}
+
+/* Import CSV button — sits in the Recent activity card head where "View all"
+   used to live. Matches the .ft-nw-edit visual weight. */
+.ft-import-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	height: 28px;
+	padding: 0 10px;
+	border: 1px solid var(--border-2);
+	border-radius: 7px;
+	background: var(--surface);
+	color: var(--ink-2);
+	font-size: 12px;
+	font-weight: 500;
+	transition:
+		border-color 120ms,
+		background 120ms,
+		color 120ms,
+		transform 80ms;
+}
+.ft-import-btn:hover {
+	border-color: var(--ink-faint);
+	background: var(--surface-2);
+	color: var(--ink);
+}
+.ft-import-btn:active {
+	transform: translateY(1px);
+}
+.ft-import-btn:disabled {
+	opacity: 0.6;
+	cursor: default;
 }
 
 /* ---------------- Categories ---------------- */
@@ -987,6 +1062,47 @@ kbd.ft-kbd {
 	justify-content: flex-end;
 	gap: 10px;
 	margin-top: 4px;
+}
+/* Edit-mode footer pushes Delete to the left and keeps Cancel/Save right. */
+.ft-drawer-foot-edit {
+	justify-content: space-between;
+	align-items: center;
+	flex-wrap: wrap;
+}
+.ft-drawer-foot-right {
+	display: flex;
+	gap: 10px;
+	margin-left: auto;
+}
+.ft-btn-delete {
+	color: var(--neg);
+}
+.ft-btn-delete:hover {
+	background: var(--neg-soft);
+	border-color: #e7c8c0;
+}
+
+/* Inline delete confirmation strip slides in below the form when the user taps
+   Delete — keeps the action two-step without a second dialog. */
+.ft-delete-confirm {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 12px 20px;
+	border-top: 1px solid var(--border);
+	background: var(--neg-soft);
+	flex-wrap: wrap;
+}
+.ft-delete-confirm-text {
+	flex: 1;
+	font-size: 13px;
+	color: var(--neg);
+	font-weight: 500;
+	min-width: 0;
+}
+.ft-delete-confirm-buttons {
+	display: flex;
+	gap: 8px;
 }
 
 .ft-btn {
@@ -2051,5 +2167,45 @@ kbd.ft-kbd {
 	.lg-input,
 	.ft-search input {
 		font-size: 16px;
+	}
+
+	/* Tighten the recent-activity rows on phones: smaller side padding, slightly
+	   smaller amount text, more compact icon column so long merchant strings
+	   (e.g. "CLAUDE.AI SUBSCRIPTION") aren't crowded by the amount. */
+	.ft-tx-row {
+		grid-template-columns: 28px minmax(0, 1fr) auto;
+		gap: 10px;
+		padding: 11px 14px;
+	}
+	.ft-tx-icon {
+		width: 28px;
+		height: 28px;
+		border-radius: 7px;
+	}
+	.ft-tx-label {
+		font-size: 13px;
+	}
+	.ft-tx-meta {
+		font-size: 11.5px;
+	}
+	.ft-tx-amt {
+		font-size: 13px;
+	}
+	.ft-card-head {
+		padding: 14px 14px;
+	}
+	.ft-import-btn {
+		height: 30px;
+		padding: 0 10px;
+	}
+
+	/* Edit-drawer foot: at narrow widths let the Delete button drop above the
+	   Cancel/Save pair instead of overflowing. */
+	.ft-drawer-foot-edit {
+		gap: 12px;
+	}
+	.ft-drawer-foot-right {
+		width: 100%;
+		justify-content: flex-end;
 	}
 }
